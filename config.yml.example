@@ -1,0 +1,12 @@
+dc:
+  token: DISCORD BOT TOKEN HERE
+  msg:
+    no_permission: "NO! not allowed! just don't!"
+
+# Set a Debug level to log requests.
+# 10 : Debug (print everything)
+# 20 : Info (only more important informations)
+# 30 : Only Warnings. (e.g. weird requests)
+bot:
+  log_level: 10
+  log_file: -1

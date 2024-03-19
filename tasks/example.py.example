@@ -1,0 +1,6 @@
+async def role_sync_loop(client, cfg):
+    # Your loop logic here
+    ...
+
+def register(client, cfg):
+    return role_sync_loop(client, cfg)  # Return the coroutine

@@ -1,0 +1,26 @@
+import discord
+import logging
+import __main__
+
+class Command:
+    def __init__(self, client, cfg):
+        self.tree = client.tree
+        self.cfg = cfg
+        self.register_commands()
+
+    def register_commands(self):
+        @self.tree.command(name="tell", description="Sag uns etwas anonym.")
+        async def tell(interaction: discord.Interaction, text: str):
+            client : discord.Client = __main__.client
+            await interaction.response.defer()
+            try:
+                gruender_channel = client.get_channel(951241154643525632)
+
+                await gruender_channel.send(f"```\n{text}\n```")
+
+                omsg = (await interaction.original_response())
+                await interaction.followup.delete_message( omsg.id )
+
+            except Exception as e:
+                logging.error(f"Tell Exception: {str(e)}")
+                await interaction.channel.send("Tut mir leid, hier ist was schief gelaufen.")
