@@ -9,15 +9,13 @@ class Command:
         self.register_commands()
 
     def register_commands(self):
-        @self.tree.command(name="tell", description="Sag uns etwas anonym.")
-        async def tell(interaction: discord.Interaction, text: str):
+        @self.tree.command(name="ping", description="Pong")
+        async def ping(interaction: discord.Interaction, text: str):
             client : discord.Client = __main__.client
             await interaction.response.defer()
             try:
-                gruender_channel = client.get_channel(951241154643525632)
-
-                await gruender_channel.send(f"```\n{text}\n```")
-
+                await interaction.followup.send(f"Pong! {text}")
+                
                 omsg = (await interaction.original_response())
                 await interaction.followup.delete_message( omsg.id )
 

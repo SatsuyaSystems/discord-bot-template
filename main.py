@@ -1,8 +1,7 @@
-import yaml, logging, os, time, discord, pytz, datetime
+import yaml, logging, os, time, discord, pytz, datetime, importlib.util
 
 from colorama import Fore, init
 from discord import app_commands
-from lib import startup, database
 
 init(convert=True, autoreset=True)
 
@@ -13,7 +12,6 @@ intents     : discord.Intents           = discord.Intents().all()
 client      : discord.Client            = discord.Client(intents=intents,member_cache_flags=discord.MemberCacheFlags.all())
 tree        : app_commands.CommandTree  = app_commands.CommandTree(client)
 client.tree                             = tree
-DB : database.Database = database.Database(client, cfg)
 
 if not os.path.exists('./logs'):
     os.mkdir('./logs')
@@ -26,28 +24,32 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+commands_dir = 'commands'
+for filename in os.listdir(commands_dir):
+    if filename.endswith('.py'):
+        module_name = filename[:-3]
+        module_path = os.path.join(commands_dir, filename)
+        
+        spec = importlib.util.spec_from_file_location(module_name, module_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        
+        if hasattr(module, 'Command'):
+            command_instance = module.Command(client, cfg)
+            logging.info(f"Registered command from {filename}")
 
 @client.event
 async def on_ready():
-    os.system( 'clear' )
-    
-    logging.info("===================")
-    logging.info("hello pterodactyl")
-    logging.info("===================")
+    logging.info(f"Bot is ready as {client.user.name}#{client.user.discriminator} ({client.user.id})")
 
-    startup.register_tasks(client, cfg)
-    startup.load_commands(client, cfg)
-
-    await client.tree.sync()
+    if cfg['dc']['sync_guild'] != -1:
+        await client.tree.sync() 
+    else:
+        client.tree.sync_guild(guild=discord.Object(id=cfg['dc']['sync_guild']))
 
 @client.event
 async def on_message(msg) -> None:
     if msg.author.id == client.user.id: return
-
-    if msg.channel.id in [952289841947742238,1008742773895209061] and len(msg.attachments) < 1:
-        try: await msg.delete()
-        except discord.errors.NotFound: pass
-        except Exception as err: logging.error( err ) 
 
     for member in msg.mentions:
         if member.timed_out_until != None:

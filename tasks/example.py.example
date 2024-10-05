@@ -1,6 +1,11 @@
-async def role_sync_loop(client, cfg):
-    # Your loop logic here
-    ...
+import __main__
+import asyncio
+
+async def task(client, cfg):
+    await client.wait_until_ready()
+    while not client.is_closed() and client.is_ready():
+        print("Hello from test.py")
+        await asyncio.sleep(120)
 
 def register(client, cfg):
-    return role_sync_loop(client, cfg)  # Return the coroutine
+    return task(client, cfg)

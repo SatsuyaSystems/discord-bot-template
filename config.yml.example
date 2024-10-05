@@ -2,6 +2,8 @@ dc:
   token: DISCORD BOT TOKEN HERE
   msg:
     no_permission: "NO! not allowed! just don't!"
+  # use -1 to sync to all.
+  sync_guild: -1
 
 # Set a Debug level to log requests.
 # 10 : Debug (print everything)
