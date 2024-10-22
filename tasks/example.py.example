@@ -4,7 +4,7 @@ import asyncio
 async def task(client, cfg):
     await client.wait_until_ready()
     while not client.is_closed() and client.is_ready():
-        print("Hello from test.py")
+        print("Hello from example Task.")
         await asyncio.sleep(120)
 
 def register(client, cfg):

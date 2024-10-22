@@ -3,6 +3,9 @@ import yaml, logging, os, time, discord, pytz, datetime, importlib.util
 from colorama import Fore, init
 from discord import app_commands
 
+from lib.load_tasks import load_tasks
+from lib.load_commands import load_commands
+
 init(convert=True, autoreset=True)
 
 with open('config.yml', 'r') as file:
@@ -24,22 +27,13 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-commands_dir = 'commands'
-for filename in os.listdir(commands_dir):
-    if filename.endswith('.py'):
-        module_name = filename[:-3]
-        module_path = os.path.join(commands_dir, filename)
-        
-        spec = importlib.util.spec_from_file_location(module_name, module_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        
-        if hasattr(module, 'Command'):
-            command_instance = module.Command(client, cfg)
-            logging.info(f"Registered command from {filename}")
+
 
 @client.event
 async def on_ready():
+    await load_tasks(client, cfg)
+    await load_commands(client, cfg)
+    
     logging.info(f"Bot is ready as {client.user.name}#{client.user.discriminator} ({client.user.id})")
 
     if cfg['dc']['sync_guild'] != -1:

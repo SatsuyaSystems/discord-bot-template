@@ -20,5 +20,5 @@ class Command:
                 await interaction.followup.delete_message( omsg.id )
 
             except Exception as e:
-                logging.error(f"Tell Exception: {str(e)}")
+                logging.error(f"Command Exception: {str(e)}")
                 await interaction.channel.send("Tut mir leid, hier ist was schief gelaufen.")
