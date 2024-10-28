@@ -20,6 +20,7 @@ To add commands, follow these steps:
 3. Restart the bot.
 
 After restarting, you should see the new command in Discord without needing to register anything.
+You can use subfolders to manage your Commands, for example `commands/managment/banUser.py` would work.
 
 ## Adding Tasks
 
