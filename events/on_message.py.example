@@ -1,0 +1,11 @@
+from lib.load_events import register_event
+
+async def setup(client, cfg):
+    if not hasattr(client, "_channel_locks"):
+        client._channel_locks = {}
+
+    async def wrapper(msg):
+        # await foo(msg, client, cfg)
+        pass
+    
+    register_event("on_message", wrapper)
