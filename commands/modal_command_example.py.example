@@ -1,0 +1,77 @@
+import discord
+from discord import app_commands
+import json
+import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from modals.usernote import UserNoteModal
+
+# Define the file name for saving user data.
+DATA_FILE = "user_notes.json"
+
+# --- Data Management Functions (moved here to be self-contained) ---
+
+def load_notes() -> dict:
+    """Loads user notes from the JSON file."""
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, "r") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            return {}
+    return {}
+
+
+def save_notes(notes: dict):
+    """Saves user notes to the JSON file."""
+    with open(DATA_FILE, "w") as f:
+        json.dump(notes, f, indent=4)
+
+
+class Command:
+    """
+    Represents the context menu command for adding a note.
+    """
+
+    def __init__(self, client: discord.Client, cfg: dict):
+        self.client = client
+        self.cfg = cfg
+        self.tree = client.tree
+        self.register_command()
+
+    def register_command(self):
+        """
+        Registers the context menu command with the bot.
+        """
+
+        @self.tree.context_menu(name='Add Note')
+        async def add_note_context_menu(interaction: discord.Interaction, member: discord.Member):
+            """
+            This is the context menu command. It appears when you right-click a user.
+            """
+
+            permitted_roles = self.cfg.data['dc']['permitted_roles']
+
+            has_permission = any(str(role.id) in permitted_roles for role in interaction.user.roles)
+
+            if not has_permission:
+                await interaction.response.send_message(
+                    "You do not have the required permissions to use this command.",
+                    ephemeral=True
+                )
+                return
+
+            # Load all existing notes.
+            notes = load_notes()
+
+            # Check if a note already exists for the selected member.
+            user_note = notes.get(str(member.id), "")
+
+            # Dynamically import the modal to avoid circular dependencies.
+            # This is a good practice for modular loading.
+            from modals.usernote import UserNoteModal
+
+            # Create and send the modal to the user.
+            modal = UserNoteModal(user_id=member.id, initial_text=user_note)
+            await interaction.response.send_modal(modal)
