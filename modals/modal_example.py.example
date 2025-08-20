@@ -1,0 +1,58 @@
+import discord
+from discord import ui
+import json
+import os
+import logging
+
+# Define the file name for saving user data.
+DATA_FILE = "user_notes.json"
+
+def load_notes() -> dict:
+    """Loads user notes from the JSON file."""
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, "r") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            return {}
+    return {}
+
+def save_notes(notes: dict):
+    """Saves user notes to the JSON file."""
+    with open(DATA_FILE, "w") as f:
+        json.dump(notes, f, indent=4)
+
+class UserNoteModal(ui.Modal, title='User Note'):
+    """
+    This modal contains the text input field for the user note.
+    """
+    def __init__(self, user_id: int, initial_text: str = ""):
+        super().__init__()
+        self.user_id = user_id
+        # Define the text input field.
+        self.note_input = ui.TextInput(
+            label='Enter your note',
+            style=discord.TextStyle.long,
+            default=initial_text,
+            required=False,
+            max_length=4000
+        )
+        self.add_item(self.note_input)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        """
+        This method is called when the user clicks the "Submit" button on the modal.
+        """
+        notes = load_notes()
+        notes[str(self.user_id)] = self.note_input.value
+        save_notes(notes)
+        await interaction.response.send_message(
+            f'Note for user saved successfully!',
+            ephemeral=True
+        )
+
+# This is the function that the loader will look for and call.
+async def setup(client: discord.Client, cfg: dict):
+    # This setup function doesn't need to do anything with the modal class
+    # directly, as it's primarily handled by the command that calls it.
+    logging.info("UserNoteModal is available.")
