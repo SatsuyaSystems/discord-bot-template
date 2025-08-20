@@ -18,9 +18,9 @@ cfg = g_data.get_or_create(
 
 init(convert=True, autoreset=True)
 
-intents: discord.Intents = discord.Intents().all()
-client: discord.Client = discord.Client(intents=intents, member_cache_flags=discord.MemberCacheFlags.all())
-tree: app_commands.CommandTree = app_commands.CommandTree(client)
+intents : discord.Intents           = discord.Intents().all()
+client  : discord.Client            = discord.Client(intents=intents, member_cache_flags=discord.MemberCacheFlags.all())
+tree    : app_commands.CommandTree  = app_commands.CommandTree(client)
 client.tree = tree
 
 if not os.path.exists('./logs'):
